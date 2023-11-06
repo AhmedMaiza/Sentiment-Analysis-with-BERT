@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+        
+        .navbar a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .positive {
+            color: green;
+        }
+
+        .negative {
+            color: red;
+        }
+
+        .container {
+           min-height: 100vh;
+           position: relative;
+        }
+
+        .pagination {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .pagination a, .pagination span {
+            color: #333;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            margin: 0 3px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #f4f4f4;
+        }
+
+        .pagination .current {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reviews Scraping at {{ current_time }}</h1>
+    <div class="navbar">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('logout') }}" style="float: right;">Logout</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                {% for column in data.keys() %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(data['userName']|length) %}
+                <tr>
+                    {% for column in data.keys() %}
+                        {% if column == 'sentiment' %}
+                            <td class="{{ data[column][i].lower() }}">
+                                {% if data[column][i].lower() == 'positive' %}
+                                    &#x1F601;
+                                {% elif data[column][i].lower() == 'negative' %}
+                                    &#x1F641;
+                                {% endif %}
+                                {{ data[column][i] }}
+                            </td>
+                        {% else %}
+                            <td>{{ data[column][i] }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="container">
+    <div class="pagination">
+        {% if pagination.page > 1 %}
+            <a class="page-link" href="{{ url_for('home', page=1) }}">First</a>
+            <a class="page-link" href="{{ url_for('home', page=pagination.page - 1) }}">Previous</a>
+        {% else %}
+            <span class="page-link disabled">First</span>
+            <span class="page-link disabled">Previous</span>
+        {% endif %}
+      
+        {% set start_page = pagination.page - 1 if pagination.page > 2 else 1 %}
+        {% set end_page = pagination.page + 1 if pagination.page < num_pages - 2 else num_pages %}
+        {% for page in range(start_page, end_page + 1) %}
+          {% if page == pagination.page %}
+            <span class="page-link current">{{ page }}</span>
+          {% else %}
+            <a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a>
+          {% endif %}
+        {% endfor %}
+      
+        {% if pagination.page < num_pages %}
+            <a class="page-link" href="{{ url_for('home', page=pagination.page + 1) }}">Next</a>
+            <a class="page-link" href="{{ url_for('home', page=num_pages) }}">Last</a>
+        {% else %}
+            <span class="page-link disabled">Next</span>
+            <span class="page-link disabled">Last</span>
+        {% endif %}
+      </div>
+      </div>
+           
+</body>
+</html>
